@@ -1,7 +1,8 @@
 # Create your views here.
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
-from pybo.models import Question, Answer
+from .forms import QuestionForm
+from .models import Question, Answer
 
 
 # 요청이 되어 이 함수가 실행된 것이니 request써주기
@@ -38,3 +39,23 @@ def answer_create(request, question_id):
     # 답변등록 후 질문 상세 화면을 다시 보여주기 위해 redirect 함수 사용
     # redirect 함수는 페이지 이동을 위한 함수
     # detail 별칭은 question_id가 필요하므로 question.id를 인수로 전달함
+
+
+def question_create(request):
+    """
+    pybo 질문등록
+    """
+    if request.method == 'POST': # 요청 방식이 POST 이면
+        form = QuestionForm(request.POST) # 그 값을(제목과 내용으로 구성되어있는 폼의) form 이라는 변수에 저장
+        if form.is_valid(): # 그 form이라는 변수가 유효하다면
+            question = form.save(commit=False) # form 변수를 임시저장해서 question이라는 변수에 넣기
+            question.create_date = timezone.now() # question의 등록날짜를 등록 시점으로 해라
+            question.save() # 저장해라
+            return redirect('pybo:index') # 첫번쨰 화면인 질문 목록의 화면으로 이동해라
+        else: # get 방식이면 빈칸으로 해도 무방
+            form = QuestionForm()
+            context = {'form': form}
+            return render(request, 'pybo/question_form.html', context)
+
+
+
