@@ -11,8 +11,9 @@ def index(request):
     pybo 목록 출력
     """
     # -기호가 붙어있으면 역방향, 없으면 순방향 (게시물을 최신순으로 보기 떄문에 작성일시의 역순(-)으로 정렬)
-    question_list = Question.objects.order_by('-create_date') # Question 전체에 대해서 질문등록일시를 역순(-)으로 정렬한 것을 question_list 객체에 넣어줌
-    context = {'question_list': question_list} #foreach문과 비슷?
+    question_list = Question.objects.order_by(
+        '-create_date')  # Question 전체에 대해서 질문등록일시를 역순(-)으로 정렬한 것을 question_list 객체에 넣어줌
+    context = {'question_list': question_list}  # 자바의 맵 같은것 {'키':값}
     return render(request, 'pybo/question_list.html', context)
     # render는 데이터를 내가 가지고 있는 템플릿에 적용시켜서 html로 보여주는 함수
 
@@ -45,17 +46,15 @@ def question_create(request):
     """
     pybo 질문등록
     """
-    if request.method == 'POST': # 요청 방식이 POST 이면
-        form = QuestionForm(request.POST) # 그 값을(제목과 내용으로 구성되어있는 폼의) form 이라는 변수에 저장
-        if form.is_valid(): # 그 form이라는 변수가 유효하다면
-            question = form.save(commit=False) # form 변수를 임시저장해서 question이라는 변수에 넣기
-            question.create_date = timezone.now() # question의 등록날짜를 등록 시점으로 해라
-            question.save() # 저장해라
-            return redirect('pybo:index') # 첫번쨰 화면인 질문 목록의 화면으로 이동해라
-        else: # get 방식이면 빈칸으로 해도 무방
-            form = QuestionForm()
-            context = {'form': form}
-            return render(request, 'pybo/question_form.html', context)
-
-
+    if request.method == 'POST':  # 요청 방식이 POST 이면
+        form = QuestionForm(request.POST)  # 그 값을(request.POST은 사용자가 입력한 폼) form 이라는 변수에 저장
+        if form.is_valid():  # 그 form이라는 변수가 유효하다면
+            question = form.save(commit=False)  # form 변수를 임시저장해서 question이라는 변수에 넣기
+            question.create_date = timezone.now()  # question의 등록날짜를 등록 시점으로 해라
+            question.save()  # 저장해라
+            return redirect('pybo:index')  # 첫번쨰 화면인 질문 목록의 화면으로 이동해라
+    else:  # get 방식이면
+        form = QuestionForm() # 빈칸으로 해도 무방
+    context = {'form': form}  # {키:값}
+    return render(request, 'pybo/question_form.html', context)
 
